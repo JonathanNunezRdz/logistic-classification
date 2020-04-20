@@ -25,7 +25,8 @@ def main():
     csv = 'diabetes.csv'
     #   define the training data size, testing data size will be calculated accordingly
     training_size = 0.8
-
+    #   define whether to plot the w values at the end of the program
+    create_histogram = True
 
     #   display is required and is used for whether or not to print the training data set:
     #
@@ -45,7 +46,7 @@ def main():
     #   calculate the gradient of cost function.
     #
     #   it will also return the mean and deviation to use it to predict
-    x_training, y_training, x_testing, y_testing = uf.load_data(csv, display, will_scale_x, training_size)
+    x_training, y_training, x_testing, y_testing, labels = uf.load_data(csv, display, will_scale_x, training_size)
 
 
     #   declare w to zeros, w will be the "weight" for each of the features in the data set, which will then be 
@@ -70,7 +71,7 @@ def main():
     learning_rate = 0.0005
     #   -------------------------------------------------------------------------------------------
     #   calculate w values with the gradient descent method
-    w, features_histogram = uf.gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display)
+    w, features_histogram = uf.gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display, create_histogram)
 
 
     #   make the predictions based on the test data (with feature scaling)
@@ -91,7 +92,7 @@ def main():
     print("--- the program has ended ---")
     print("--- %s seconds ---" % (time.time() - start_time))
 
-    uf.create_histogram(features_histogram)
+    if create_histogram: uf.create_histogram(features_histogram, labels)
 
 
 if __name__ == "__main__":

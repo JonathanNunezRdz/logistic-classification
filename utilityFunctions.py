@@ -26,6 +26,7 @@ def load_data(file, display, will_scale_x, training_size):
         exit(1)
     
     # split data into training and testing
+    labels = data.columns.values
     training_data = data.sample(frac=training_size)
     testing_data = data.drop(training_data.index)
 
@@ -71,11 +72,11 @@ def load_data(file, display, will_scale_x, training_size):
                 print(x_testing_scaled[i])
 
         # return the training data and testing data scaled
-        return x_training_scaled, y_training, x_testing_scaled, y_testing
+        return x_training_scaled, y_training, x_testing_scaled, y_testing, labels
     else:
         x_training = np.concatenate((ones,x_training), axis=1)
         # return the training data and testing data
-        return x_training, y_training, x_testing, y_testing
+        return x_training, y_training, x_testing, y_testing, labels
 
 """scale x_training to avoid conflicts"""
 def scale_x(x, mode, **kwargs):
@@ -111,25 +112,40 @@ def scale_x(x, mode, **kwargs):
         return x_scaled
 
 """calculate w until the L2_norm reaches the stopping criteria"""
-def gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display):
+def gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display, create_histogram):
     iteration = 0
-    features_histogram = np.zeros([0,w.shape[0]])
+    if create_histogram: 
+        features_histogram = np.zeros([0,w.shape[0]])
 
-    L2_norm = 100.0
-    while L2_norm > stopping_criteria:
-        features_histogram = np.append(features_histogram, w.T, axis=0)
+        L2_norm = 100.0
+        while L2_norm > stopping_criteria:
+            features_histogram = np.append(features_histogram, w.T, axis=0)
 
-        gradient_of_cost_function = compute_gradient_of_cost_function_multivariate(x_training, y_training, w)
-        w = w - (learning_rate * gradient_of_cost_function)
-        L2_norm = compute_L2_norm_multivariate(gradient_of_cost_function)
-        iteration += 1
+            gradient_of_cost_function = compute_gradient_of_cost_function_multivariate(x_training, y_training, w)
+            w = w - (learning_rate * gradient_of_cost_function)
+            L2_norm = compute_L2_norm_multivariate(gradient_of_cost_function)
+            iteration += 1
 
-        if(display == 1):
-            print('w: {}, L2: {}'.format(w, L2_norm))
+            if(display == 1):
+                print('w: {}, L2: {}'.format(w, L2_norm))
 
-    print("--- {} L2_norm ---".format(L2_norm))
-    print("--- {} iterations ---".format(iteration))
-    return w, features_histogram
+        print("--- {} L2_norm ---".format(L2_norm))
+        print("--- {} iterations ---".format(iteration))
+        return w, features_histogram
+    else:
+        L2_norm = 100.0
+        while L2_norm > stopping_criteria:
+            gradient_of_cost_function = compute_gradient_of_cost_function_multivariate(x_training, y_training, w)
+            w = w - (learning_rate * gradient_of_cost_function)
+            L2_norm = compute_L2_norm_multivariate(gradient_of_cost_function)
+            iteration += 1
+
+            if(display == 1):
+                print('w: {}, L2: {}'.format(w, L2_norm))
+
+        print("--- {} L2_norm ---".format(L2_norm))
+        print("--- {} iterations ---".format(iteration))
+        return w, 0
 
 """compute the cost of the gradient"""
 def compute_gradient_of_cost_function_multivariate(x,y,w):
@@ -148,10 +164,7 @@ def compute_gradient_of_cost_function_multivariate(x,y,w):
 
 """get hypothesis function with w and x"""
 def eval_hypothesis_function_multivariate(w, x):
-    h = np.matmul(w.T, x.T)
-    for i in range(h.shape[1]):
-        h[0][i] = 1/(1 + math.exp(-h[0][i]))    
-    return h
+    return 1.0/(1 + np.exp(-np.dot(w.T, x.T)))
 
 """calculate the L2_norm based with the gradient of cost function"""
 def compute_L2_norm_multivariate(gradient_of_cost_function):
@@ -247,17 +260,15 @@ def print_performance_metrics(confusion_matrix):
     print('f1 score\t\t=> {}'.format(f1_score))
 
 """create a plot with the features and their values across the interation number"""
-def create_histogram(features_histogram):
+def create_histogram(features_histogram, labels):
     plt.subplot(111)
     plt.xlabel('# of iterations')
     plt.ylabel("value of w's")
     plt.title('feature histogram')
 
     x_plot = np.arange(features_histogram.shape[0])
-    y_labels = np.array(["y-intercept", "Pregnancies", "Glucose", "Blood Pressure", 
-                        "Skin Thickness", "Insulin", "BMI", "Diabetes Pedigree Function", "Age"])
     for i in range(features_histogram.shape[1]):
-        plt.plot(x_plot, np.array(features_histogram[:,i]), label=y_labels[i])
+        plt.plot(x_plot, np.array(features_histogram[:,i]), label=labels[i])
     
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.show()
