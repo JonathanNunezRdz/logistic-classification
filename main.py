@@ -67,23 +67,31 @@ def main():
     #   otherwise when it starts to "correct/update" the w values, there is a chance that it will go beyond the minimum and will
     #   try to correct again (there's also a chance that it will stay in an infinite loop)
     stopping_criteria = 0.01
-    learning_rate = 0.0005
+    learning_rate = 0.05
     #   -------------------------------------------------------------------------------------------
     #   calculate w values with the gradient descent method
-    w = uf.gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display)
+    w, features_histogram = uf.gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display)
 
 
     #   make the predictions based on the test data (with feature scaling)
-    y = uf.predict(x_testing, w)
+    y = uf.predict(w,x_testing)
     #   -------------------------------------------------------------------------------------------
     #   print_results takes as arguments the array of shape(n,1), the name of the rows, and the title to print before the values
     uf.print_results(w, 'w', 'w parameters')
     uf.print_results(y, 'y', 'outcome [prediction]', predictions=1)
 
-    #   confusion_matrix = 
-    uf.calculate_confussion_matrix(y,y_testing)
+
+    #   get_confusion_matrix will return a matrix with the true positives, true negatives, false positives, and false negatives
+    #   -------------------------------------------------------------------------------------------
+    confusion_matrix = uf.get_confussion_matrix(y,y_testing)
+    #   print_performance_metrics will print the accuracy, precision, recall, specificity, and f1 score based on the confusion matrix
+    #   -------------------------------------------------------------------------------------------
+    uf.print_performance_metrics(confusion_matrix)
+
     print("--- the program has ended ---")
     print("--- %s seconds ---" % (time.time() - start_time))
+
+    uf.create_histogram(features_histogram)
 
 
 if __name__ == "__main__":

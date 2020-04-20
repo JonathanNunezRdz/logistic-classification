@@ -1,5 +1,15 @@
-"""custom user functions"""
+""" utilityFunctions.py
+    This script is used as a library, it contains several functions that are used for
+    implemeting logistic classification and logistic regression to create a model for
+    predicting.
 
+    Author:         Jonathan Nunez Rdz.
+    Institution:    Universidad de Monterrey
+    First Created:  Sat 18 April, 2020
+    Email:          jonathan.nunez@udem.edu // jonathannunezr1@gmail.com
+"""
+
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import math
@@ -103,9 +113,12 @@ def scale_x(x, mode, **kwargs):
 """calculate w until the L2_norm reaches the stopping criteria"""
 def gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display):
     iteration = 0
-    
+    features_histogram = np.zeros([0,w.shape[0]])
+
     L2_norm = 100.0
     while L2_norm > stopping_criteria:
+        features_histogram = np.append(features_histogram, w.T, axis=0)
+
         gradient_of_cost_function = compute_gradient_of_cost_function_multivariate(x_training, y_training, w)
         w = w - (learning_rate * gradient_of_cost_function)
         L2_norm = compute_L2_norm_multivariate(gradient_of_cost_function)
@@ -116,7 +129,7 @@ def gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, 
 
     print("--- {} L2_norm ---".format(L2_norm))
     print("--- {} iterations ---".format(iteration))
-    return w
+    return w, features_histogram
 
 """compute the cost of the gradient"""
 def compute_gradient_of_cost_function_multivariate(x,y,w):
@@ -165,7 +178,7 @@ def print_results(results, name, title, **kwargs):
             print("{}[{}]: {}".format(name,i,results[i][0]))
 
 """predict the y values for a x_test input"""
-def predict(x, w):    
+def predict(w, x):
     y = np.zeros([x.shape[0],1])
 
     for i in range(x.shape[0]):   
@@ -184,7 +197,8 @@ def predict(x, w):
     return new_y
 
 """calculate the confusion matrix with the given predicted class and the actual class"""
-def calculate_confussion_matrix(predicted_class, actual_class):
+def get_confussion_matrix(predicted_class, actual_class):
+    confusion_matrix = np.zeros([2,2])
     TP = 0
     TN = 0
     FP = 0
@@ -196,10 +210,25 @@ def calculate_confussion_matrix(predicted_class, actual_class):
         elif (predicted_class[i][1] == 1 and actual_class[i][0] == 0): FP += 1
         else: FN += 1
 
+    confusion_matrix[0][0] = TP
+    confusion_matrix[1][1] = TN
+    confusion_matrix[0][1] = FP
+    confusion_matrix[1][0] = FN
+
+    return confusion_matrix
+
+"""print to the console the performance metrics"""
+def print_performance_metrics(confusion_matrix):
+    TP = confusion_matrix[0][0]
+    TN = confusion_matrix[1][1]
+    FP = confusion_matrix[0][1]
+    FN = confusion_matrix[1][0]
+
     accuracy = (TP + TN)/(TP + TN + FP + FN)
     precision = TP /(TP + FP)
     recall = TP/(TP + FN)
     specificity = TN/(TN + FP)
+    f1_score = 2*(precision * recall)/(precision + recall)
 
     print('-'*40)
     print('confussion matrix')
@@ -215,3 +244,18 @@ def calculate_confussion_matrix(predicted_class, actual_class):
     print('precision\t\t=> {}'.format(precision))
     print('recall\t\t\t=> {}'.format(recall))
     print('specificity\t\t=> {}'.format(specificity))
+    print('f1 score\t\t=> {}'.format(f1_score))
+
+"""create a plot with the features and their values across the interation number"""
+def create_histogram(features_histogram):
+    plt.subplot(111)
+    plt.xlabel('# of iterations')
+    plt.ylabel("value of w's")
+    plt.title('feature histogram')
+
+    x_plot = np.arange(features_histogram.shape[0])
+    for i in range(features_histogram.shape[1]):
+        plt.plot(x_plot, np.array(features_histogram[:,i]), label="w{}".format(i))
+    
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+    plt.show()
