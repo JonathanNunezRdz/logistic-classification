@@ -231,7 +231,7 @@ def print_performance_metrics(confusion_matrix):
     f1_score = 2*(precision * recall)/(precision + recall)
 
     print('-'*40)
-    print('confussion matrix')
+    print('confusion matrix')
     print('-'*40)
     print('true positives\t\t=> {}'.format(TP))
     print('true negatives\t\t=> {}'.format(TN))
@@ -254,8 +254,10 @@ def create_histogram(features_histogram):
     plt.title('feature histogram')
 
     x_plot = np.arange(features_histogram.shape[0])
+    y_labels = np.array(["y-intercept", "Pregnancies", "Glucose", "Blood Pressure", 
+                        "Skin Thickness", "Insulin", "BMI", "Diabetes Pedigree Function", "Age"])
     for i in range(features_histogram.shape[1]):
-        plt.plot(x_plot, np.array(features_histogram[:,i]), label="w{}".format(i))
+        plt.plot(x_plot, np.array(features_histogram[:,i]), label=y_labels[i])
     
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.show()

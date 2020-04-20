@@ -67,7 +67,7 @@ def main():
     #   otherwise when it starts to "correct/update" the w values, there is a chance that it will go beyond the minimum and will
     #   try to correct again (there's also a chance that it will stay in an infinite loop)
     stopping_criteria = 0.01
-    learning_rate = 0.05
+    learning_rate = 0.0005
     #   -------------------------------------------------------------------------------------------
     #   calculate w values with the gradient descent method
     w, features_histogram = uf.gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display)
