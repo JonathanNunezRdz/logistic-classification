@@ -135,7 +135,10 @@ def compute_gradient_of_cost_function_multivariate(x,y,w):
 
 """get hypothesis function with w and x"""
 def eval_hypothesis_function_multivariate(w, x):
-    return np.matmul(w.T, x.T)
+    h = np.matmul(w.T, x.T)
+    for i in range(h.shape[1]):
+        h[0][i] = 1/(1 + math.exp(-h[0][i]))    
+    return h
 
 """calculate the L2_norm based with the gradient of cost function"""
 def compute_L2_norm_multivariate(gradient_of_cost_function):
@@ -172,7 +175,7 @@ def predict(x, w):
 
     new_y = np.zeros([x.shape[0],2])
     for i in range(new_y.shape[0]):
-            new_y[i][0] = 1.0 / (1.0 + math.exp(-y[i]))
+            new_y[i][0] = 1/(1 + math.exp(-y[i]))
             if(new_y[i][0] >= 0.5):
                 new_y[i][1] = 1
             else:

@@ -38,7 +38,7 @@ def main():
     # 
     #   will_scale = 1, will implement feature scalling 
     #   wii_scale = 0, will not
-    will_scale_x = 0
+    will_scale_x = 1
     #   -------------------------------------------------------------------------------------------    # 
     #   uf.load_data will read the determined csv (must be local) with pandas and divide tha data to x_training 
     #   and y_training, the data will be divided in 80% to training and 20% to testing which will be used to 
@@ -67,7 +67,7 @@ def main():
     #   otherwise when it starts to "correct/update" the w values, there is a chance that it will go beyond the minimum and will
     #   try to correct again (there's also a chance that it will stay in an infinite loop)
     stopping_criteria = 0.01
-    learning_rate = 0.00005
+    learning_rate = 0.0005
     #   -------------------------------------------------------------------------------------------
     #   calculate w values with the gradient descent method
     w = uf.gradient_descent_multivariate(x_training, y_training, w, stopping_criteria, learning_rate, display)
